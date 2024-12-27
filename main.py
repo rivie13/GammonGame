@@ -11,7 +11,7 @@ import pygame, sys
 from pygame.locals import *
 from Boards.board import Board
 from Checkers.checker import Checker
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, CHECKER_COLOR_WHITE, CHECKER_COLOR_BLACK, POINT_WIDTH
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, CHECKER_COLOR_WHITE, CHECKER_COLOR_BLACK, POINT_WIDTH, POINTS_POSITIONS_DICT, CHECKERS_STARTING_POSITIONS
 
 pygame.init()
 
@@ -25,13 +25,18 @@ class Game:
         pygame.display.set_caption("GAMMON")
         self.clock = pygame.time.Clock()
         self.board = Board(self.screen)
-        #create a position placement dictionary which will go through all the board positions
-        #center of each position is 32.08 mod since spots are 64.16... should I round up?
-        self.checkers = [
-            Checker(CHECKER_COLOR_WHITE, (SCREEN_WIDTH // 4, 20)),
-            Checker(CHECKER_COLOR_WHITE, (SCREEN_WIDTH // 4 + POINT_WIDTH, 20)),
-            Checker(CHECKER_COLOR_BLACK, (SCREEN_WIDTH - SCREEN_WIDTH // 4, SCREEN_HEIGHT - 20)),
-        ]
+        #dictionary of Checker objects created by dictionary of checker piece starting position info...
+        self.checkerPieces = self.initializeStart()
+
+    def initializeStart(self):
+        checkerPieces = []
+        for pieceNumber, positionInfo in CHECKERS_STARTING_POSITIONS.items():
+            if pieceNumber <= 15:
+                checkerPieces.append(Checker(CHECKER_COLOR_WHITE, positionInfo))
+            else:
+                checkerPieces.append(Checker(CHECKER_COLOR_BLACK, positionInfo))
+        return checkerPieces
+
 
     def run(self):
         while True:
@@ -40,7 +45,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
             self.board.draw()
-            for checker in self.checkers:
+            for checker in self.checkerPieces:
                 checker.draw(self.screen)
             pygame.display.flip()
             self.clock.tick(60)
