@@ -11,6 +11,7 @@ import pygame, sys
 from pygame.locals import *
 from Boards.board import Board
 from Checkers.checker import Checker
+from Dice.dice import Dice
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, CHECKER_COLOR_WHITE, CHECKER_COLOR_BLACK, POINT_WIDTH, POINTS_POSITIONS_DICT, CHECKERS_STARTING_POSITIONS
 
 pygame.init()
@@ -27,6 +28,8 @@ class Game:
         self.board = Board(self.screen)
         #dictionary of Checker objects created by dictionary of checker piece starting position info...
         self.checkerPieces = self.initializeStart()
+        self.dice1 = Dice(self.screen)
+        self.dice2 = Dice(self.screen)
 
     def initializeStart(self):
         checkerPieces = []
@@ -38,7 +41,7 @@ class Game:
         return checkerPieces
 
 
-    def run(self):
+    '''def run(self):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -47,7 +50,57 @@ class Game:
             self.board.draw()
             for checker in self.checkerPieces:
                 checker.draw(self.screen)
+            self.dice1.roll()
+            self.dice2.roll()
+            self.dice1.draw(self.screen, self.dice1, (200,200))
             pygame.display.flip()
+            self.clock.tick(60)
+    '''
+
+    def run(self):
+        players = ["Player 1", "Player 2"]  # Define players
+        current_player_index = 0  # Start with Player 1
+
+        while True:
+            for event in pygame.event.get():
+
+                # Draw the board and checkers
+                self.board.draw()
+                for checker in self.checkerPieces:
+                    checker.draw(self.screen)
+
+                # Display current player's turn
+                font = pygame.font.Font(None, 36)
+                turn_text = font.render(f"{players[current_player_index]}'s Turn", True, (255, 255, 255))
+                self.screen.blit(turn_text, (100, 300))
+
+
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    self.dice1.roll()
+                    self.dice2.roll()
+
+
+                    # Print results (or implement game logic here)
+                    print(f"{players[current_player_index]} rolled {self.dice1.current_value} and {self.dice2.current_value}")
+
+                    # End current player's turn and switch to the next player
+                    current_player_index = (current_player_index + 1) % len(players)
+
+                    # Draw the dice results
+                    self.dice1.draw(self.screen, self.dice1, (200, 200))
+                    self.dice2.draw(self.screen, self.dice2, (300, 200))
+                    pygame.display.flip()
+
+            # Clear the screen
+            #self.screen.fill((0, 0, 0))  # Assuming a black background
+
+
+            # Update the display
+            pygame.display.flip()
+
             self.clock.tick(60)
 
 if __name__ == "__main__":
