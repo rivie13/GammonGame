@@ -41,62 +41,67 @@ class Game:
         return checkerPieces
 
 
-    '''def run(self):
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-            self.board.draw()
-            for checker in self.checkerPieces:
-                checker.draw(self.screen)
-            self.dice1.roll()
-            self.dice2.roll()
-            self.dice1.draw(self.screen, self.dice1, (200,200))
-            pygame.display.flip()
-            self.clock.tick(60)
-    '''
-
     def run(self):
         players = ["Player 1", "Player 2"]  # Define players
         current_player_index = 0  # Start with Player 1
 
+        dice_rolled = False  # Flag to check if dice have been rolled
+
         while True:
             for event in pygame.event.get():
-
-                # Draw the board and checkers
-                self.board.draw()
-                for checker in self.checkerPieces:
-                    checker.draw(self.screen)
-
-                # Display current player's turn
-                font = pygame.font.Font(None, 36)
-                turn_text = font.render(f"{players[current_player_index]}'s Turn", True, (255, 255, 255))
-                self.screen.blit(turn_text, (100, 300))
-
-
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    self.dice1.roll()
-                    self.dice2.roll()
 
+                # Handle key presses for the game
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE and not dice_rolled:
+                        # Roll dice if space is pressed and dice haven't been rolled yet
+                        self.dice1.roll()
+                        self.dice2.roll()
 
-                    # Print results (or implement game logic here)
-                    print(f"{players[current_player_index]} rolled {self.dice1.current_value} and {self.dice2.current_value}")
+                        # Print results (or implement game logic here)
+                        print(
+                            f"{players[current_player_index]} rolled {self.dice1.current_value} and {self.dice2.current_value}"
+                        )
 
-                    # End current player's turn and switch to the next player
-                    current_player_index = (current_player_index + 1) % len(players)
+                        # Draw the dice results
+                        self.dice1.draw(self.screen, self.dice1, (200, 200))
+                        self.dice2.draw(self.screen, self.dice2, (300, 200))
+                        pygame.display.flip()
 
-                    # Draw the dice results
-                    self.dice1.draw(self.screen, self.dice1, (200, 200))
-                    self.dice2.draw(self.screen, self.dice2, (300, 200))
-                    pygame.display.flip()
+                        dice_rolled = True  # Set flag to True once dice are rolled
 
-            # Clear the screen
-            #self.screen.fill((0, 0, 0))  # Assuming a black background
+                    elif event.key == pygame.K_RETURN and dice_rolled:
+                        # Switch player when Enter is pressed after dice have been rolled
+                        current_player_index = (current_player_index + 1) % len(players)
+                        dice_rolled = False  # Reset dice roll flag for the next player
 
+            # Clear the screen (but after drawing the dice)
+            self.screen.fill((0, 0, 0))  # Assuming a black background
+
+            # Draw the board and checkers
+            self.board.draw()
+            for checker in self.checkerPieces:
+                checker.draw(self.screen)
+
+            # Display current player's turn
+            font = pygame.font.Font(None, 36)
+            turn_text = font.render(f"{players[current_player_index]}'s Turn", True, (255, 255, 255))
+            self.screen.blit(turn_text, (100, 300))
+
+            # If dice have been rolled, show the results and wait for Enter to switch turns
+            if dice_rolled:
+                font = pygame.font.Font(None, 36)
+                pause_text = font.render(
+                    f"{players[current_player_index]}'s turn complete. Press Enter for next turn.", True,
+                    (255, 255, 255)
+                )
+                self.screen.blit(pause_text, (100, 400))
+
+                # Draw the dice results on top of the board and other elements
+                self.dice1.draw(self.screen, self.dice1, (200, 200))
+                self.dice2.draw(self.screen, self.dice2, (300, 200))
 
             # Update the display
             pygame.display.flip()
